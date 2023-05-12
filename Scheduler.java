@@ -2,6 +2,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
 import java.util.Scanner;
+
+import javax.xml.transform.Source;
+
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.PriorityQueue;
@@ -88,6 +91,20 @@ class Scheduler {
         return totalWaitingTime / processList.size();
     }
 
+    public void printGantt() {
+        System.out.println("\n\nGanttChart :");
+        System.out.println("\t\t");
+        for (int i = 0; i < ganttChart.size(); i++)
+            System.out.print(ganttChart.get(i) + " | ");
+
+        System.out.println("\t\t");
+        for (int i = 0; i <= ganttChart.size(); i++)
+            if (i < 10)
+                System.out.print(i + " | ");
+            else
+                System.out.println(i + " | ");
+    }
+
     public void run() {
         int currentTime = 0;
 
@@ -101,10 +118,14 @@ class Scheduler {
 
         while (!processQueue.isEmpty() || !readyQueue.isEmpty()) {
             Process.currenttime = currentTime;
+            System.out.println("\nTime " + currentTime + ":");
 
             // adding the processes in readyQueue
-            while (!processQueue.isEmpty() && processQueue.get(0).arrivaltime <= currentTime)
-                readyQueue.add(processQueue.remove(0));
+            while (!processQueue.isEmpty() && processQueue.get(0).arrivaltime <= currentTime) {
+                Process pr = processQueue.remove(0);
+                readyQueue.add(pr);
+                System.out.println("\n\t\t" + pr + " arrived at Time : " + currentTime + "\n");
+            }
 
             if (!readyQueue.isEmpty()) {
 
@@ -114,8 +135,8 @@ class Scheduler {
                 ganttChart.add(currentProcess);
                 currentProcess.burst--;
 
-                System.out.println("\nTime " + currentTime + " :");
-                System.out.println("\t\t" + currentProcess + ", priority = " + currentProcess.prio + ", wait time = "
+                System.out.println("\t\tCurrently running process is : P" + currentProcess.pid + "\n");
+                System.out.println("\t\t" + currentProcess + ": priority = " + currentProcess.prio + ", wait time = "
                         + currentProcess.waittime + "s");
 
                 // updating the readyQueue according to the priorities
@@ -126,7 +147,7 @@ class Scheduler {
                         pr.waittime++;
                         pr.updatedPriority();
                         System.out.println(
-                                "\t\t" + pr + ", priority = " + pr.prio + ", wait time = " + pr.waittime + "s");
+                                "\t\t" + pr + ": priority = " + pr.prio + ", wait time = " + pr.waittime + "s");
                         rough.add(pr);
                     }
 
@@ -142,6 +163,7 @@ class Scheduler {
 
             } else {
                 // when no process is arrived
+                System.out.print("\t\tNo process in system");
                 ganttChart.add(new Process(-1, -1, -1));
             }
 
@@ -149,7 +171,7 @@ class Scheduler {
         }
 
         double avgWaitingTime = calculateAvgWaitingTime();
-        System.out.println("\n\nGantt chart: " + ganttChart);
+        printGantt();
         System.out.println("\nAverage waiting time: " + avgWaitingTime + "s\n\n");
     }
 
@@ -159,10 +181,14 @@ class Scheduler {
 
         System.out.print("Enter number of processes: \t");
         int n = sc.nextInt();
+        System.out.println();
 
         for (int i = 0; i < n; i++) {
-            System.out.println("Enter arrival time and burst time for process(in seconds) " + (i + 1) + ": ");
+
+            System.out.print("Enter arrival time for process(in seconds) " + (i + 1) + ": \t");
             int arrivaltime = sc.nextInt();
+
+            System.out.print("Enter burst time for process(in seconds) " + (i + 1) + ": \t");
             int burstTime = sc.nextInt();
 
             System.out.println();
